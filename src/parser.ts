@@ -60,13 +60,75 @@ const parseStream = (stream: NodeJS.ReadableStream, debug = false) =>
 
     let chain = new Node('root')
     let logs = []
+
+    interface Handler {
+      [key: string]: Handler | Function
+      open?(): void
+      close?(): void
+      text?(v: string): void
+    }
+    const handlers: Handler = {
+      channel: {
+        title: {
+          open: () => {},
+          close: () => {},
+        },
+      },
+    }
+    let activeHandler: Handler
+    let handlerChain: string[] = []
+
+    function openHandler(name: string): Handler {
+      name = name.toLowerCase()
+      if (['open', 'close', 'text'].includes(name)) {
+        console.error(`invalid tag name ${name}`)
+        return activeHandler
+      }
+      if (
+        activeHandler &&
+        chain.name.toLowerCase() !== handlerChain[handlerChain.length - 1]
+      )
+        return activeHandler
+      const handlerPool = activeHandler || handlers
+      let newHandler = activeHandler
+      if (name in handlerPool) {
+        newHandler = handlerPool[name] as Handler
+        handlerChain.push(name)
+        if ('open' in newHandler) newHandler.open()
+        if (debug) logs.push(`open ${handlerChain.join('.')}`)
+      }
+      return newHandler
+    }
+
+    const _select = (path: string[], cur: Object = handlers) => {
+      if (path.length === 0) return cur
+      return _select(path.slice(1), cur[path[0]])
+    }
+
+    function closeHandler(): Handler {
+      if (chain.name.toLowerCase() === handlerChain[handlerChain.length - 1]) {
+        if ('close' in activeHandler) activeHandler.close()
+        if (debug) logs.push(`close ${handlerChain.join('.')}`)
+        handlerChain = handlerChain.slice(0, -1)
+        if (handlerChain.length > 0) return _select(handlerChain, handlers)
+        else {
+          console.log('handler to null')
+          return null
+        }
+      }
+
+      return activeHandler
+    }
+
     sax.on('opentag', ({ name }) => {
+      activeHandler = openHandler(name)
       chain = chain.push(name)
       if (debug) logs.push(chain.printBranch())
     })
 
     sax.on('closetag', () => {
-      chain = chain.parent
+      activeHandler = closeHandler()
+      chain = chain ? chain.parent : null
     })
 
     sax.on('end', () => {
