@@ -13,7 +13,8 @@ export default async function({ url, mode = 'clean', debug = false }: Options) {
 
   try {
     const { data } = await axios({ method: 'get', responseType: 'stream', url })
-    await parseStream(data, debug)
+    const podcast = await parseStream(data, debug)
+    console.log(podcast)
   } catch (e) {
     console.error(e)
   }
@@ -58,8 +59,12 @@ const parseStream = (stream: NodeJS.ReadableStream, debug = false) =>
       position: true,
     })
 
-    let chain = new Node('root')
+    let parseTree = new Node('root')
     let logs = []
+
+    const podcast: Partial<Podcast> = {
+      episodes: [],
+    }
 
     interface Handler {
       [key: string]: Handler | Function
@@ -67,11 +72,23 @@ const parseStream = (stream: NodeJS.ReadableStream, debug = false) =>
       close?(): void
       text?(v: string): void
     }
+
+    const textRule = (text: (v: string) => void) => ({ text })
+
+    let episode: Partial<Episode>
     const handlers: Handler = {
       channel: {
-        title: {
-          open: () => {},
-          close: () => {},
+        title: textRule(v => (podcast.title = v)),
+        author: textRule(v => (podcast.creator = v)),
+        item: {
+          open: () => {
+            episode = {}
+          },
+          close: () => {
+            podcast.episodes.push(episode as Episode)
+            episode = null
+          },
+          title: textRule(v => (episode.title = v)),
         },
       },
     }
@@ -86,7 +103,7 @@ const parseStream = (stream: NodeJS.ReadableStream, debug = false) =>
       }
       if (
         activeHandler &&
-        chain.name.toLowerCase() !== handlerChain[handlerChain.length - 1]
+        parseTree.name.toLowerCase() !== handlerChain[handlerChain.length - 1]
       )
         return activeHandler
       const handlerPool = activeHandler || handlers
@@ -106,7 +123,9 @@ const parseStream = (stream: NodeJS.ReadableStream, debug = false) =>
     }
 
     function closeHandler(): Handler {
-      if (chain.name.toLowerCase() === handlerChain[handlerChain.length - 1]) {
+      if (
+        parseTree.name.toLowerCase() === handlerChain[handlerChain.length - 1]
+      ) {
         if ('close' in activeHandler) activeHandler.close()
         if (debug) logs.push(`close ${handlerChain.join('.')}`)
         handlerChain = handlerChain.slice(0, -1)
@@ -122,18 +141,28 @@ const parseStream = (stream: NodeJS.ReadableStream, debug = false) =>
 
     sax.on('opentag', ({ name }) => {
       activeHandler = openHandler(name)
-      chain = chain.push(name)
-      if (debug) logs.push(chain.printBranch())
+      parseTree = parseTree.push(name)
+      if (debug) logs.push(parseTree.printBranch())
+    })
+
+    sax.on('text', (text: string) => {
+      if (
+        activeHandler &&
+        parseTree.name.toLowerCase() ===
+          handlerChain[handlerChain.length - 1] &&
+        'text' in activeHandler
+      )
+        activeHandler.text(text)
     })
 
     sax.on('closetag', () => {
       activeHandler = closeHandler()
-      chain = chain ? chain.parent : null
+      parseTree = parseTree ? parseTree.parent : null
     })
 
     sax.on('end', () => {
       if (debug) fs.writeFileSync('./parse.log', logs.join('\n'))
-      resolve()
+      resolve(podcast)
     })
 
     stream.pipe(sax)
