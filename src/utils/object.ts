@@ -11,3 +11,6 @@ export const set = (obj: object, value: any, ...path: string[]) => {
 
 export const filterKeys = (obj: object, func: (k: string) => boolean) =>
   Object.fromEntries(Object.entries(obj).filter(([k]) => func(k)))
+
+export const mapKeys = (obj: object, func: (k: string) => string) =>
+  Object.fromEntries(Object.entries(obj).map(([k, v]) => [func(k), v]))

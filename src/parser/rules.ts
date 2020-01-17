@@ -1,63 +1,27 @@
-import { set, filterKeys } from '../utils/object'
+import build from './buildRules'
 
-const rules = {
-  channel: {
-    title: 'title',
-    'itunes:author': 'creator',
-    item: {
-      $ctx: 'episode',
-      title: 'title',
-    },
-  },
+interface ProtoRule {
+  [key: string]: ProtoRule | string | ((v: any) => [string, any])
 }
 
-const build = (rules: object) => (podcast: Partial<Podcast>) => {
-  let ctx = [podcast]
-  const ctxHandler = {
-    episode: {
-      open() {
-        ctx.push({})
+const rules: ProtoRule = {
+  channel: {
+    title: {
+      text: text => ['title', text],
+    },
+    'itunes:author': {
+      text: 'creator',
+    },
+    item: {
+      $ctx: 'episode',
+      title: {
+        text: 'title',
       },
-      close() {
-        const episode = ctx.pop() as Episode
-        if (!('episodes' in podcast)) podcast.episodes = []
-        podcast.episodes.push(episode)
+      enclosure: {
+        open: ({ url }) => ['file', url],
       },
     },
-  }
-
-  const resolveDirectives = (rule: any) => {
-    let directive = Object.keys(rule).find(k => k.startsWith('$'))
-    while (directive) {
-      switch (directive) {
-        case '$ctx':
-          rule = {
-            ...ctxHandler[rule.$ctx],
-            ...filterKeys(rule, k => k !== '$ctx'),
-          }
-          break
-        default:
-          throw Error(`unknown directive ${directive}`)
-      }
-      directive = Object.keys(rule).find(k => k.startsWith('$'))
-    }
-    return rule
-  }
-
-  const transform = (rule: object) =>
-    Object.fromEntries(
-      Object.entries(rule).map(([k, v]) => [
-        k,
-        typeof v === 'string'
-          ? (text => (k === 'text' ? text : { text }))((text: string) =>
-              set(ctx[ctx.length - 1], text, ...v.split('.'))
-            )
-          : typeof v === 'function'
-          ? v
-          : transform(resolveDirectives(v)),
-      ])
-    )
-  return transform(rules)
+  },
 }
 
 export default build(rules)

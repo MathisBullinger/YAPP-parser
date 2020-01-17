@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { createStream } from 'sax'
-import { select } from '../utils/object'
+import { select, mapKeys } from '../utils/object'
 import buildRules from './rules'
 import Node from './node'
 
@@ -24,8 +24,9 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
     let activeHandler: Rule
     let handlerChain: string[] = []
 
-    function openHandler(name: string): Rule {
+    function openHandler(name: string, attrs: Attributes): Rule {
       name = name.toLowerCase()
+      if (attrs) attrs = mapKeys(attrs, k => k.toLowerCase())
       if (['open', 'close', 'text'].includes(name)) {
         console.error(`invalid tag name ${name}`)
         return activeHandler
@@ -40,8 +41,13 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
       if (name in handlerPool) {
         newHandler = handlerPool[name] as Rule
         handlerChain.push(name)
-        if ('open' in newHandler) newHandler.open()
-        if (debug) logs.push(`open ${handlerChain.join('.')}`)
+        if ('open' in newHandler) newHandler.open(attrs || {})
+        if (debug)
+          logs.push(
+            `open ${handlerChain.join('.')} ${
+              !attrs ? '' : JSON.stringify(attrs)
+            }`
+          )
       }
       return newHandler
     }
@@ -63,8 +69,8 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
       return activeHandler
     }
 
-    sax.on('opentag', ({ name }) => {
-      activeHandler = openHandler(name)
+    sax.on('opentag', ({ name, attributes }) => {
+      activeHandler = openHandler(name, attributes)
       parseTree = parseTree.push(name)
       if (debug) logs.push(parseTree.printBranch())
     })

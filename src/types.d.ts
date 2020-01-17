@@ -10,7 +10,15 @@ interface Episode {
 
 interface Rule {
   [key: string]: Rule | Function
-  open?(): void
+  open?(attrs?: Attributes): void
   close?(): void
   text?(v: string): void
 }
+
+type Attributes =
+  | {
+      [key: string]: string
+    }
+  | {
+      [key: string]: QualifiedAttribute
+    }
