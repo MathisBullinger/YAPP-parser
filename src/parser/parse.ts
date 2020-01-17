@@ -17,9 +17,7 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
     let parseTree = new Node('root')
     let logs = []
 
-    const podcast: Partial<Podcast> = {
-      episodes: [],
-    }
+    const podcast: Partial<Podcast> = {}
 
     const handlers = buildRules(podcast)
 
@@ -87,7 +85,10 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
     })
 
     sax.on('end', () => {
-      if (debug) fs.writeFileSync('./parse.log', logs.join('\n'))
+      if (debug) {
+        fs.writeFileSync('./logs/parse.log', logs.join('\n'))
+        fs.writeFileSync('./logs/podcast.json', JSON.stringify(podcast))
+      }
       resolve(podcast)
     })
 
