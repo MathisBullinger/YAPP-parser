@@ -1,1 +1,3 @@
-console.log('parser says hi')
+export default function parse() {
+  console.log('parse')
+}
