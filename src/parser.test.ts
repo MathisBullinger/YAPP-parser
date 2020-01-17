@@ -1,5 +1,5 @@
 import parse from './parser'
 
-test('parse', () => {
-  parse()
+test('parse', async () => {
+  await parse({ url: 'https://softwareengineeringdaily.com/feed/podcast/' })
 })
