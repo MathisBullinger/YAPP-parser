@@ -1,28 +1,54 @@
 import axios from 'axios'
 import { createStream } from 'sax'
+import fs from 'fs'
 
 interface Options {
   url: string
   mode?: 'clean'
+  debug?: boolean
 }
 
-export default async function({ url, mode = 'clean' }: Options) {
+export default async function({ url, mode = 'clean', debug = false }: Options) {
   if (mode !== 'clean') return console.log(`invalid mode ${mode}`)
 
   try {
-    console.log('query')
     const { data } = await axios({ method: 'get', responseType: 'stream', url })
-    console.log('pipe start')
-    await parseStream(data)
-    console.log('pipe stop')
+    await parseStream(data, debug)
   } catch (e) {
     console.error(e)
   }
-
-  console.log('done')
 }
 
-const parseStream = (stream: NodeJS.ReadableStream) =>
+class Node {
+  public readonly children: Node[] = []
+  constructor(public readonly name: string, public readonly parent?: Node) {}
+
+  push(name: string) {
+    const child = new Node(name, this)
+    this.children.push(child)
+    return child
+  }
+
+  get root() {
+    if (!this.parent) return this
+    return this.parent.root
+  }
+
+  printBranch() {
+    let node: Node = this
+    const branch = []
+    while (node) {
+      branch.push(node)
+      node = node.parent
+    }
+    return branch
+      .map(({ name }) => name)
+      .reverse()
+      .join(' -> ')
+  }
+}
+
+const parseStream = (stream: NodeJS.ReadableStream, debug = false) =>
   new Promise(resolve => {
     const sax = createStream(false, {
       trim: true,
@@ -32,8 +58,19 @@ const parseStream = (stream: NodeJS.ReadableStream) =>
       position: true,
     })
 
+    let chain = new Node('root')
+    let logs = []
+    sax.on('opentag', ({ name }) => {
+      chain = chain.push(name)
+      if (debug) logs.push(chain.printBranch())
+    })
+
+    sax.on('closetag', () => {
+      chain = chain.parent
+    })
+
     sax.on('end', () => {
-      console.log('end')
+      if (debug) fs.writeFileSync('./parse.log', logs.join('\n'))
       resolve()
     })
 
