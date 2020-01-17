@@ -1,0 +1,50 @@
+{
+  "name": "parser",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "npx webpack --config ./webpack.config.js",
+    "prettier:check": "prettier --check \"./*.{js,ts}\" \"./**/*.{js,ts}\"",
+    "prettier:write": "prettier --write \"./*.{js,ts}\" \"./**/*.{js,ts}\"",
+    "eslint:check": "eslint . --ext .js,.ts,",
+    "eslint:write": "eslint . --ext .js,.ts, --fix",
+    "lint": "npm run eslint:check && npm run prettier:check",
+    "format": "npm run eslint:write && npm run prettier:write"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MathisBullinger/YAPP-parser.git"
+  },
+  "author": "Mathis Bullinger",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MathisBullinger/YAPP-parser/issues"
+  },
+  "homepage": "https://github.com/MathisBullinger/YAPP-parser#readme",
+  "dependencies": {
+    "sax": "^1.2.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.3",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/preset-typescript": "^7.8.3",
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "@typescript-eslint/parser": "^2.16.0",
+    "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "fork-ts-checker-webpack-plugin": "^4.0.1",
+    "prettier": "^1.19.1",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
+}
