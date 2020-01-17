@@ -5,7 +5,7 @@ const rules = {
     title: 'title',
     'itunes:author': 'creator',
     item: {
-      ctx: 'episode',
+      $ctx: 'episode',
       title: 'title',
     },
   },
@@ -26,6 +26,24 @@ const build = (rules: object) => (podcast: Partial<Podcast>) => {
     },
   }
 
+  const resolveDirectives = (rule: any) => {
+    let directive = Object.keys(rule).find(k => k.startsWith('$'))
+    while (directive) {
+      switch (directive) {
+        case '$ctx':
+          rule = {
+            ...ctxHandler[rule.$ctx],
+            ...filterKeys(rule, k => k !== '$ctx'),
+          }
+          break
+        default:
+          throw Error(`unknown directive ${directive}`)
+      }
+      directive = Object.keys(rule).find(k => k.startsWith('$'))
+    }
+    return rule
+  }
+
   const transform = (rule: object) =>
     Object.fromEntries(
       Object.entries(rule).map(([k, v]) => [
@@ -36,12 +54,7 @@ const build = (rules: object) => (podcast: Partial<Podcast>) => {
             )
           : typeof v === 'function'
           ? v
-          : 'ctx' in v
-          ? transform({
-              ...ctxHandler[v.ctx],
-              ...filterKeys(v, k => k !== 'ctx'),
-            })
-          : transform(v),
+          : transform(resolveDirectives(v)),
       ])
     )
   return transform(rules)
