@@ -2,7 +2,7 @@ import parse from './parser'
 
 test('parse', async () => {
   await parse({
-    url: 'https://softwareengineeringdaily.com/feed/podcast/',
+    url: 'http://www.hellointernet.fm/podcast?format=rss',
     debug: true,
   })
 })

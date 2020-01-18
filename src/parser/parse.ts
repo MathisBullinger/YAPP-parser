@@ -60,10 +60,7 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
         if (debug) logs.push(`close ${handlerChain.join('.')}`)
         handlerChain = handlerChain.slice(0, -1)
         if (handlerChain.length > 0) return select(handlers, ...handlerChain)
-        else {
-          console.log('handler to null')
-          return null
-        }
+        else return null
       }
 
       return activeHandler

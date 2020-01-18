@@ -2,6 +2,8 @@ import { set, filterKeys } from '../utils/object'
 
 export default (rules: object) => (podcast: Partial<Podcast>) => {
   let ctx = [podcast]
+  const prioMap = new WeakMap([[ctx[ctx.length - 1], {}]])
+
   const ctxHandler = {
     episode: {
       open() {
@@ -33,17 +35,24 @@ export default (rules: object) => (podcast: Partial<Podcast>) => {
     return rule
   }
 
-  const assign = (path: string, value: any) => {
+  const assign = (path: string, value: any, priority: number = 0) => {
+    const prio = prioMap.get(ctx[ctx.length - 1]) || {}
+    if ((prio[path] ?? -1) >= priority) return
     set(ctx[ctx.length - 1], value, ...path.split('.'))
+    prioMap.set(ctx[ctx.length - 1], {
+      ...prio,
+      [path]: priority,
+    })
   }
 
-  const buildRule = (rule: string | ((text: string) => [string, any])) =>
-    typeof rule === 'string'
-      ? (text: string) => assign(rule, text)
-      : (text: string) => {
-          const res = rule(text)
-          if (Array.isArray(res)) assign(...res)
-        }
+  const buildRule = (
+    rule: (text: string) => [string, any] | [string, any, number]
+  ) => (text: string) => {
+    const res = rule(text)
+    if (!Array.isArray(res)) return
+    const [path, value, priority = 0] = res
+    assign(path, value, priority)
+  }
 
   const transform = (rule: object) =>
     Object.fromEntries(
