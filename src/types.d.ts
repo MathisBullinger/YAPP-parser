@@ -1,6 +1,8 @@
 interface Podcast {
   title: string
   creator: string
+  website: string
+  language: string
   episodes: Episode[]
 }
 

@@ -21,6 +21,15 @@ const rules: ProtoRule = {
   channel: {
     title: text('title'),
     'itunes:author': text('creator'),
+    link: text('website'),
+    language: text('language'),
+    'itunes:subtitle': text('description.short'),
+    description: text('description.long'),
+    'itunes:owner': {
+      'itunes:name': text('publisher.name'),
+      'itunes:email': text('publisher.email'),
+    },
+    'itunes:category': attr('category', 'text'),
     item: {
       $ctx: 'episode',
       title: text('title'),

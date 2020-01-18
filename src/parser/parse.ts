@@ -72,7 +72,7 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
       if (debug) logs.push(parseTree.printBranch())
     })
 
-    sax.on('text', (text: string) => {
+    const handleText = (text: string) => {
       if (
         activeHandler &&
         parseTree.name.toLowerCase() ===
@@ -80,6 +80,20 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
         'text' in activeHandler
       )
         activeHandler.text(text)
+    }
+
+    sax.on('text', handleText)
+
+    let cdata: string = null
+    sax.on('opencdata', () => {
+      cdata = ''
+    })
+    sax.on('cdata', data => {
+      cdata += data
+    })
+    sax.on('closecdata', () => {
+      handleText(cdata)
+      cdata = null
     })
 
     sax.on('closetag', () => {
