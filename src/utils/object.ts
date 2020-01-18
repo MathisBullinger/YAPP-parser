@@ -4,6 +4,8 @@ export const select = (obj: Object, ...path: string[]) => {
 }
 
 export const set = (obj: object, value: any, ...path: string[]) => {
+  if (typeof obj !== 'object')
+    throw Error(`can't assign field to primitive: ${JSON.stringify(obj)}`)
   if (path.length === 1) return (obj[path[0]] = value)
   if (!(path[0] in obj)) obj[path[0]] = {}
   set(obj[path[0]], value, ...path.slice(1))

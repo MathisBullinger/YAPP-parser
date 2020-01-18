@@ -72,14 +72,14 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
       if (debug) logs.push(parseTree.printBranch())
     })
 
-    const handleText = (text: string) => {
+    const handleText = (text: string, cdata: boolean = false) => {
       if (
         activeHandler &&
         parseTree.name.toLowerCase() ===
           handlerChain[handlerChain.length - 1] &&
         'text' in activeHandler
       )
-        activeHandler.text(text)
+        activeHandler.text(text, cdata)
     }
 
     sax.on('text', handleText)
@@ -92,7 +92,7 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
       cdata += data
     })
     sax.on('closecdata', () => {
-      handleText(cdata)
+      handleText(cdata, true)
       cdata = null
     })
 

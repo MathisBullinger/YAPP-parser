@@ -14,7 +14,7 @@ interface Rule {
   [key: string]: Rule | Function
   open?(attrs?: Attributes): void
   close?(): void
-  text?(v: string): void
+  text?(v: string, cdata?: boolean): void
 }
 
 type Attributes =
