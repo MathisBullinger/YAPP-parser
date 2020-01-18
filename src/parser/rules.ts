@@ -55,6 +55,13 @@ const rules: ProtoRule = {
     image: {
       url: text('image'),
     },
+    'atom:link': {
+      open: ({ rel, href }) => {
+        if (!href) return
+        if (rel === 'hub') return ['websub.hub', href]
+        if (rel === 'self') return ['websub.url', href]
+      },
+    },
     item: {
       $ctx: 'episode',
       title: text('title', { priority: 2 }),
