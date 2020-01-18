@@ -6,6 +6,10 @@ const server = new ApolloServer({
   typeDefs: typeDefs,
   resolvers,
   introspection: true,
+  playground: {
+    endpoint:
+      process.env.NODE_ENV === 'devlopment' ? '/' : `/${process.env.stage}`,
+  },
 })
 
 export const parser = server.createHandler({
