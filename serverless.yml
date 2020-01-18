@@ -1,0 +1,33 @@
+service: parser
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'prod'}
+  timeout: 10
+  region: eu-central-1
+
+functions:
+  census:
+    handler: src/api/handler.parser
+    events:
+      - http:
+          path: /
+          method: post
+          cors: true
+      - http:
+          path: /
+          method: get
+          cors: true
+    environment:
+      stage: ${self:provider.stage}
+      PARSER_AWS_KEY_ID: ${ssm:PARSER_AWS_KEY_ID}
+      PARSER_AWS_KEY_SECRET: ${ssm:PARSER_AWS_KEY_SECRET}
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    port: 5000

@@ -1,15 +1,13 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const slsw = require('serverless-webpack')
 
 module.exports = {
-  entry: { parser: './src/parser.ts' },
-  output: {
-    filename: '[name].js',
-  },
+  entry: slsw.lib.entries,
   target: 'node',
   devtool: 'source-map',
-  mode: 'production',
+  mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
   optimization: {
-    minimize: true,
+    minimize: false,
   },
   performance: {
     hints: false,
@@ -40,6 +38,11 @@ module.exports = {
             loader: 'babel-loader',
           },
         ],
+      },
+      {
+        test: /\.(graphql|gql)$/,
+        exclude: /node_modules/,
+        loader: 'graphql-tag/loader',
       },
     ],
   },

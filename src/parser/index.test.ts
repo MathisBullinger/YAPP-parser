@@ -1,4 +1,4 @@
-import parse from './parser'
+import parse from '.'
 
 const feed = {
   reply: 'https://feeds.megaphone.fm/replyall',

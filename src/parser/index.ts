@@ -1,5 +1,5 @@
 import axios from 'axios'
-import parseStream from './parser/parse'
+import parseStream from './parse'
 
 interface Options {
   url: string
