@@ -36,7 +36,7 @@ const recursiveRule = (k: string, v: object, lvl = 5) => {
 
 const rules: ProtoRule = {
   channel: {
-    title: text('title'),
+    title: text('name'),
     'itunes:author': text('creator'),
     link: text('website'),
     language: text('language'),

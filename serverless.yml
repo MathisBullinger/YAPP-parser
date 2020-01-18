@@ -5,7 +5,7 @@ provider:
   runtime: nodejs12.x
   stage: ${opt:stage, 'prod'}
   timeout: 10
-  region: eu-central-1
+  region: us-east-1
 
 functions:
   parser:
@@ -30,4 +30,4 @@ plugins:
 
 custom:
   serverless-offline:
-    port: 5000
+    port: 7000

@@ -106,6 +106,7 @@ export default (
 
     sax.on('end', () => {
       if (debug) {
+        if (!fs.existsSync('./logs/')) fs.mkdirSync('./logs/')
         fs.writeFileSync('./logs/parse.log', logs.join('\n'))
         fs.writeFileSync('./logs/podcast.json', JSON.stringify(podcast))
       }

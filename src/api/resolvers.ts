@@ -6,6 +6,7 @@ export default {
   },
 
   Mutation: {
-    parse: async (root, { url }) => await parse({ url }),
+    parse: async (root, { url, debug = false }) =>
+      await parse({ url, debug: debug }),
   },
 }
