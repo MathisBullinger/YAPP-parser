@@ -4,7 +4,10 @@ import { select, mapKeys } from '../utils/object'
 import buildRules from './rules'
 import Node from './node'
 
-export default (stream: NodeJS.ReadableStream, debug = false) =>
+export default (
+  stream: NodeJS.ReadableStream,
+  debug = false
+): Promise<Podcast> =>
   new Promise(resolve => {
     const sax = createStream(false, {
       trim: true,
@@ -106,7 +109,7 @@ export default (stream: NodeJS.ReadableStream, debug = false) =>
         fs.writeFileSync('./logs/parse.log', logs.join('\n'))
         fs.writeFileSync('./logs/podcast.json', JSON.stringify(podcast))
       }
-      resolve(podcast)
+      resolve(podcast as Podcast)
     })
 
     stream.pipe(sax)

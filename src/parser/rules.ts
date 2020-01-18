@@ -64,7 +64,7 @@ const rules: ProtoRule = {
     },
     item: {
       $ctx: 'episode',
-      title: text('title', { priority: 2 }),
+      name: text('title', { priority: 2 }),
       'itunes:title': text('title', { priority: 1 }),
       enclosure: attr('file', 'url'),
       'media:content': attr('file', 'url'),

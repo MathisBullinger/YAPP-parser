@@ -1,7 +1,53 @@
+type Podcast {
+  name: String
+  creator: String
+  website: String
+  language: String
+  description: Description
+  publisher: Publisher
+  categories: [String]
+  lastBuild: String
+  image: String
+  websub: WebSub
+  episodes: [Episode]
+}
+
+type Episode {
+  title: String
+  file: String
+  date: String
+  description: Description
+  image: String
+  season: String
+  episode: String
+  type: String
+  duration: String
+}
+
+type Description {
+  short: String
+  long: String
+}
+
+type Publisher {
+  name: String
+  email: String
+}
+
+type WebSub {
+  hub: String
+  url: String
+}
+
 type Query {
   hello: String
 }
 
+type Mutation {
+  parse(url: String): Podcast
+}
+
 schema {
   query: Query
+  mutation: Mutation
 }

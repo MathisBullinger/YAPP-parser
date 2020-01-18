@@ -7,13 +7,16 @@ interface Options {
   debug?: boolean
 }
 
-export default async function({ url, mode = 'clean', debug = false }: Options) {
-  if (mode !== 'clean') return console.log(`invalid mode ${mode}`)
+export default async function({
+  url,
+  mode = 'clean',
+  debug = false,
+}: Options): Promise<Podcast> {
+  if (mode !== 'clean') return void console.log(`invalid mode ${mode}`)
 
   try {
     const { data } = await axios({ method: 'get', responseType: 'stream', url })
-    const podcast = await parseStream(data, debug)
-    console.log(podcast)
+    return await parseStream(data, debug)
   } catch (e) {
     console.error(e)
   }
