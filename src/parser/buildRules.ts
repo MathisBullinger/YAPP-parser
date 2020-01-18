@@ -1,4 +1,4 @@
-import { set, filterKeys } from '../utils/object'
+import { select, set, filterKeys } from '../utils/object'
 
 export default (rules: object) => (podcast: Partial<Podcast>) => {
   let ctx = [podcast]
@@ -35,7 +35,15 @@ export default (rules: object) => (podcast: Partial<Podcast>) => {
     return rule
   }
 
-  const assign = (path: string, value: any, priority: number = 0) => {
+  const assign = (path: string, value: any, priority: Priority = 0) => {
+    if (priority === 'append') {
+      return set(
+        ctx[ctx.length - 1],
+        [...(select(ctx[ctx.length - 1], ...path.split('.')) || []), value],
+        ...path.split('.')
+      )
+    }
+
     const prio = prioMap.get(ctx[ctx.length - 1]) || {}
     if ((prio[path] ?? -1) >= priority) return
     set(ctx[ctx.length - 1], value, ...path.split('.'))

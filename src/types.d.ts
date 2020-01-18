@@ -24,3 +24,5 @@ type Attributes =
   | {
       [key: string]: QualifiedAttribute
     }
+
+type Priority = number | 'append'
