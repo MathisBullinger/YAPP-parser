@@ -54,12 +54,12 @@ export default (rules: object) => (podcast: Partial<Podcast>) => {
   }
 
   const buildRule = (
-    rule: (text: string) => [string, any] | [string, any, number]
-  ) => (text: string) => {
-    const res = rule(text)
+    rule: (text: any) => [string, any] | [string, any, number]
+  ) => (data: any) => {
+    const res = rule(data)
     if (!Array.isArray(res)) return
     const [path, value, priority = 0] = res
-    assign(path, value, priority)
+    assign(path, value, data.isdefault === 'true' ? Infinity : priority)
   }
 
   const transform = (rule: object) =>
@@ -69,7 +69,7 @@ export default (rules: object) => (podcast: Partial<Podcast>) => {
           value = buildRule(value)
         } else if (typeof value !== 'function')
           value = transform(resolveDirectives(value))
-        return [key, value]
+        return [key.toLowerCase(), value]
       })
     )
   return transform(rules)

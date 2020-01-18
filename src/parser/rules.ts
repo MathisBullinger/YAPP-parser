@@ -33,10 +33,16 @@ const rules: ProtoRule = {
       'itunes:email': text('publisher.email'),
     },
     'itunes:category': attr('categories', 'text', { priority: 'append' }),
+    lastBuildDate: text('lastBuild'),
+    'itunes:image': attr('image', 'href'),
+    image: {
+      url: text('image'),
+    },
     item: {
       $ctx: 'episode',
       title: text('title'),
       enclosure: attr('file', 'url'),
+      'media:content': attr('file', 'url'),
     },
   },
 }
