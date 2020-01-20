@@ -69,14 +69,19 @@ export async function addPodcast(podcast: Podcast, id: String) {
   const putRequests = items.map(Item => ({ PutRequest: { Item } }))
 
   const MAX_NUM_ITEMS = 25
-  const params = {
-    RequestItems: {
-      podcasts: putRequests.slice(0, MAX_NUM_ITEMS),
-    },
-  }
+  const batches = new Array(Math.ceil(putRequests.length / MAX_NUM_ITEMS))
+    .fill([])
+    .map((_, i) =>
+      putRequests.slice(i * MAX_NUM_ITEMS, (i + 1) * MAX_NUM_ITEMS)
+    )
+    .filter(arr => arr.length > 0)
 
-  client.batchWrite(params, (err, data) => {
-    if (err) console.error(err)
-    else console.log(`added podcast ${id}`, data)
-  })
+  for (const batch of batches) {
+    await client
+      .batchWrite({ RequestItems: { podcasts: batch } }, (err, data) => {
+        if (err) console.error(err)
+        else console.log(`added podcast ${id}`, data)
+      })
+      .promise()
+  }
 }
