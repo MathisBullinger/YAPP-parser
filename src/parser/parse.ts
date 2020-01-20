@@ -3,6 +3,7 @@ import { createStream } from 'sax'
 import { select, mapKeys } from '../utils/object'
 import buildRules from './rules'
 import Node from './node'
+import format from './format'
 
 export default (
   stream: NodeJS.ReadableStream,
@@ -110,7 +111,7 @@ export default (
         fs.writeFileSync('./logs/parse.log', logs.join('\n'))
         fs.writeFileSync('./logs/podcast.json', JSON.stringify(podcast))
       }
-      resolve(podcast as Podcast)
+      resolve(format(podcast as Podcast))
     })
 
     stream.pipe(sax)

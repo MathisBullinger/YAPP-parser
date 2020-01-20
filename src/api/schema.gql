@@ -1,6 +1,7 @@
 type Podcast {
   name: String
   creator: String
+  feed: String
   website: String
   language: String
   description: Description
@@ -21,7 +22,7 @@ type Episode {
   season: String
   episode: String
   type: String
-  duration: String
+  duration: Int
 }
 
 type Description {
@@ -44,7 +45,12 @@ type Query {
 }
 
 type Mutation {
-  parse(url: String, debug: Boolean = false): Podcast
+  parse(
+    url: String
+    id: ID
+    dry: Boolean = false
+    debug: Boolean = false
+  ): Podcast
 }
 
 schema {

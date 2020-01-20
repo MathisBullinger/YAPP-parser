@@ -2,6 +2,7 @@ interface Podcast {
   name: string
   creator: string
   website: string
+  feed: string
   language: string
   description: {
     short: string
@@ -33,7 +34,7 @@ interface Episode {
   season: string
   episode: string
   type: string
-  duration: string
+  duration: string | number
 }
 
 interface Rule {
