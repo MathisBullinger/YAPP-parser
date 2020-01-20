@@ -14,6 +14,7 @@ type Podcast {
 }
 
 type Episode {
+  id: ID!
   title: String
   file: String
   date: String

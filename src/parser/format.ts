@@ -1,3 +1,5 @@
+import uuidv5 from 'uuid/v5'
+
 const format = {
   duration: (dur: number | string = 0): number => {
     if (typeof dur === 'number') return dur
@@ -19,5 +21,8 @@ export default ({ episodes, ...podcast }: Podcast): Podcast => ({
   episodes: episodes.map(episode => ({
     ...episode,
     duration: format.duration(episode.duration),
+    id: `ep_${(new Date(episode.date ?? 0).getTime() / 1000).toFixed(
+      0
+    )}_${uuidv5(episode.file ?? '', uuidv5.URL)}`,
   })),
 })

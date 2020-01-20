@@ -23,6 +23,7 @@ interface Podcast {
 }
 
 interface Episode {
+  id: string
   title: string
   file: string
   date: string
