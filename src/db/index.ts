@@ -48,7 +48,6 @@ export async function addPodcast(podcast: Podcast, id: String) {
         'title',
         'file',
         'date',
-        'image',
         'season',
         'episode',
         'type',
@@ -57,6 +56,7 @@ export async function addPodcast(podcast: Podcast, id: String) {
     ),
     description_short: episode.description?.short,
     description_long: episode.description?.long,
+    img: episode.image === podcast.image ? undefined : episode.image,
     podId: id,
     SK: episode.id,
   }))
